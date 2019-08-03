@@ -75,12 +75,12 @@ async function addBook(data) {
 /**
  * Search series.
  *
- * @param {Object} data Query Object.
- * @param {Number|[Number,'>'|'<']|[Number, Number]} data.id ID.
- * @param {String} data.title Title.
- * @param {String} data.author Author
- * @param {String} data.desc Description.
- * @param {String} data.cover_id Cover ID.
+ * @param {Object} [data] Query Object.
+ * @param {Number|[Number,'>'|'<']|[Number, Number]} [data.id] ID.
+ * @param {String} [data.title] Title.
+ * @param {String} [data.author] Author
+ * @param {String} [data.desc] Description.
+ * @param {String} [data.cover_id] Cover ID.
  *
  * @return {Promise<any[]>} Promisfied Data Array.
  */
@@ -96,23 +96,25 @@ async function searchSeries(data) {
     try {
         const db = await dbPromise;
         const query = SQL`SELECT * FROM series WHERE`;
-        let queried = false;
-        for (const key of ["id", "title", "author", "desc", "cover_id"]) {
-            if (data[key] && data[key].length) {
-                query.append(queried ? " AND " : "WHERE ");
-                if (key == "id") {
-                    const e = data[key];
-                    if (typeof data[key] == "number") {
-                        query.append(SQL`${key} = ${e}`);
-                    } else {
-                        if (e[1] in [">", "<"]) {
-                            query.append(`${key} ${e[1]} ${e[0]}`);
-                        } else if (typeof e[1] == "number") {
-                            query.append(SQL`${key} BETWEEN ${e[1]} and ${e[0]}`);
+        if (data) {
+            let queried = false;
+            for (const key of ["id", "title", "author", "desc", "cover_id"]) {
+                if (data[key] && data[key].length) {
+                    query.append(queried ? " AND " : "WHERE ");
+                    if (key == "id") {
+                        const e = data[key];
+                        if (typeof data[key] == "number") {
+                            query.append(SQL`${key} = ${e}`);
+                        } else {
+                            if (e[1] in [">", "<"]) {
+                                query.append(`${key} ${e[1]} ${e[0]}`);
+                            } else if (typeof e[1] == "number") {
+                                query.append(SQL`${key} BETWEEN ${e[1]} and ${e[0]}`);
+                            }
                         }
-                    }
-                } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
-                queried = true;
+                    } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
+                    queried = true;
+                }
             }
         }
         return await db.all(query);
@@ -124,16 +126,16 @@ async function searchSeries(data) {
 /**
  * Search books.
  *
- * @param {Object} data Query Object.
- * @param {Number|[Number,'>'|'<']|[Number, Number]} data.id ID.
- * @param {Number|[Number,'>'|'<']|[Number, Number]} data.series_id Series ID.
- * @param {String} data.title Title.
- * @param {Number|[Number,'>'|'<']|[Number, Number]} data.no No.
- * @param {String} data.filepath Filepath.
- * @param {Number|[Number,'>'|'<']|[Number, Number]} data.upload_time Upload Time.
- * @param {String} data.desc Description.
- * @param {String} data.cover_id Cover ID.
- * @param {String} data.filetype Filetype.
+ * @param {Object} [data] Query Object.
+ * @param {Number|[Number,'>'|'<']|[Number, Number]} [data.id] ID.
+ * @param {Number|[Number,'>'|'<']|[Number, Number]} [data.series_id] Series ID.
+ * @param {String} [data.title] Title.
+ * @param {Number|[Number,'>'|'<']|[Number, Number]} [data.no] No.
+ * @param {String} [data.filepath] Filepath.
+ * @param {Number|[Number,'>'|'<']|[Number, Number]} [data.upload_time] Upload Time.
+ * @param {String} [data.desc] Description.
+ * @param {String} [data.cover_id] Cover ID.
+ * @param {String} [data.filetype] Filetype.
  *
  * @return {Promise<any[]>} Promisfied Data Array.
  */
@@ -153,33 +155,35 @@ async function searchBook(data) {
     try {
         const db = await dbPromise;
         const query = SQL`SELECT * FROM book`;
-        let queried = false;
-        for (const key of [
-            "id",
-            "series_id",
-            "title",
-            "no",
-            "filepath",
-            "upload_time",
-            "desc",
-            "cover_id",
-            "filetype"
-        ]) {
-            if (data[key] && data[key].length) {
-                query.append(queried ? " AND " : "WHERE ");
-                if (key in ["id", "series_id", "no", "upload_time"]) {
-                    const e = data[key];
-                    if (typeof data[key] == "number") {
-                        query.append(SQL`${key} = ${e}`);
-                    } else {
-                        if (e[1] in [">", "<"]) {
-                            query.append(`${key} ${e[1]} ${e[0]}`);
-                        } else if (typeof e[1] == "number") {
-                            query.append(SQL`${key} BETWEEN ${e[1]} and ${e[0]}`);
+        if (data) {
+            let queried = false;
+            for (const key of [
+                "id",
+                "series_id",
+                "title",
+                "no",
+                "filepath",
+                "upload_time",
+                "desc",
+                "cover_id",
+                "filetype"
+            ]) {
+                if (data[key] && data[key].length) {
+                    query.append(queried ? " AND " : "WHERE ");
+                    if (key in ["id", "series_id", "no", "upload_time"]) {
+                        const e = data[key];
+                        if (typeof data[key] == "number") {
+                            query.append(SQL`${key} = ${e}`);
+                        } else {
+                            if (e[1] in [">", "<"]) {
+                                query.append(`${key} ${e[1]} ${e[0]}`);
+                            } else if (typeof e[1] == "number") {
+                                query.append(SQL`${key} BETWEEN ${e[1]} and ${e[0]}`);
+                            }
                         }
-                    }
-                } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
-                queried = true;
+                    } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
+                    queried = true;
+                }
             }
         }
         return await db.all(query);
