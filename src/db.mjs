@@ -82,7 +82,7 @@ async function addBook(data) {
  * @param {String} data.desc Description.
  * @param {String} data.cover_id Cover ID.
  *
- * @return {Promise<false | any[]>} Promisfied Data or false(only when the query is invalid).
+ * @return {Promise<any[]>} Promisfied Data Array.
  */
 async function searchSeries(data) {
     /*
@@ -99,7 +99,7 @@ async function searchSeries(data) {
         let queried = false;
         for (const key of ["id", "title", "author", "desc", "cover_id"]) {
             if (data[key] && data[key].length) {
-                if (queried) query.append(" AND ");
+                query.append(queried ? " AND " : "WHERE ");
                 if (key == "id") {
                     const e = data[key];
                     if (typeof data[key] == "number") {
@@ -115,7 +115,6 @@ async function searchSeries(data) {
                 queried = true;
             }
         }
-        if (!queried) return false;
         return await db.all(query);
     } catch (e) {
         throw e;
@@ -136,7 +135,7 @@ async function searchSeries(data) {
  * @param {String} data.cover_id Cover ID.
  * @param {String} data.filetype Filetype.
  *
- * @return {Promise<false | any[]>} Promisfied Data or false(only when the query is invalid).
+ * @return {Promise<any[]>} Promisfied Data Array.
  */
 async function searchBook(data) {
     /*
@@ -153,7 +152,7 @@ async function searchBook(data) {
     */
     try {
         const db = await dbPromise;
-        const query = SQL`SELECT * FROM book WHERE`;
+        const query = SQL`SELECT * FROM book`;
         let queried = false;
         for (const key of [
             "id",
@@ -167,7 +166,7 @@ async function searchBook(data) {
             "filetype"
         ]) {
             if (data[key] && data[key].length) {
-                if (queried) query.append(" AND ");
+                query.append(queried ? " AND " : "WHERE ");
                 if (key in ["id", "series_id", "no", "upload_time"]) {
                     const e = data[key];
                     if (typeof data[key] == "number") {
@@ -183,7 +182,6 @@ async function searchBook(data) {
                 queried = true;
             }
         }
-        if (!queried) return false;
         return await db.all(query);
     } catch (e) {
         throw e;
