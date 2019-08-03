@@ -1,0 +1,6 @@
+{
+    "storage": {
+        "epub": "storage/epub",
+        "mobi": "storage/mobi"
+    }
+}
