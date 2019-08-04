@@ -1,7 +1,7 @@
 import { spawn } from "child_process";
 import { promises as fs } from "fs";
 import { rootDir, config } from "./file.mjs";
-import { fileURLToPath } from "url";
+import path from "path";
 import download from "download";
 import process from "process";
 
@@ -33,7 +33,9 @@ fs.mkdir(binPath, config.folderMask)
 
 async function convert(inputPath, outputPath) {
     await checkFileExist;
-    const kindlegen = spawn(`${binPath}/kindlegen`, [inputPath, "-c2", "-verbose", "-o", outputPath]);
+    const kindlegen = spawn(`${binPath}/kindlegen`, [inputPath, "-c2", "-verbose", "-o", path.basename(outputPath)], {
+        pwd: path.dirname(outputPath)
+    });
     return kindlegen.on("close", async function(code) {
         if (code !== 0 && code !== 1) {
             throw new Error("kindlegen returned error " + code);
