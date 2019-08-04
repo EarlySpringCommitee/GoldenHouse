@@ -33,32 +33,30 @@ fs.mkdir(binPath, config.folderMask)
 
 function convert(inputPath, outputPath) {
     return new Promise((resolve, reject) => {
-        checkFileExist.then(() => {
-            const kindlegen = spawn(
-                `${binPath}/kindlegen`,
-                [inputPath, "-c2", "-verbose", "-o", path.basename(outputPath)],
-                {
-                    cwd: path.dirname(outputPath),
-                    uid: process.getuid() || 1000,
-                    gid: process.getgid() || 1000
-                }
-            );
-            if (config.debug)
-                kindlegen.stdout.on("data", function(data) {
-                    console.log("kindlegen: " + data);
-                });
-            kindlegen.on("close", async function(code) {
-                if (code !== 0 && code !== 1) {
-                    reject(new Error("kindlegen returned error " + code));
-                }
-                try {
-                    fs.access(outputPath, fs.F_OK).then(() => {
-                        resolve(outputPath);
-                    });
-                } catch (e) {
-                    reject(new Error("File Error."));
-                }
+        const kindlegen = spawn(
+            `${binPath}/kindlegen`,
+            [inputPath, "-c2", "-verbose", "-o", path.basename(outputPath)],
+            {
+                cwd: path.dirname(outputPath),
+                uid: process.getuid() || 1000,
+                gid: process.getgid() || 1000
+            }
+        );
+        if (config.debug)
+            kindlegen.stdout.on("data", function(data) {
+                console.log("kindlegen: " + data);
             });
+        kindlegen.on("close", async function(code) {
+            if (code !== 0 && code !== 1) {
+                reject(new Error("kindlegen returned error " + code));
+            }
+            try {
+                fs.access(outputPath, fs.F_OK).then(() => {
+                    resolve(outputPath);
+                });
+            } catch (e) {
+                reject(new Error("File Error."));
+            }
         });
     });
 }
