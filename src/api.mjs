@@ -135,9 +135,17 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     mobiData.filetype = "mobi";
                     if (config.debug) console.log(`MOBI File data: `, mobiData);
 
+                    const resultEpub = await db.addBook([data]);
+                    const resultMobi = await db.addBook([mobiData]);
+
+                    if (config.debug) {
+                        console.log("EPUB Result: ", resultEpub);
+                        console.log("Mobi Result: ", resultMobi);
+                    }
+
                     result[i] = {
-                        epub: await db.addBook([data])[0],
-                        mobi: await db.addBook([mobiData])[0]
+                        epub: resultEpub[0],
+                        mobi: resultMobi[0]
                     };
                     break;
                 case "application/vnd.amazon.ebook":
