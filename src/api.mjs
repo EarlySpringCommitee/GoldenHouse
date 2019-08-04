@@ -92,7 +92,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
 
     for (const i in files) {
         const f = files[i];
-        const data = datas[i];
+        const data = clone(datas[i]);
         data.upload_time = uploadTime;
         f.path = await file.moveTempEpubFile(rootDir + f.path);
         const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
@@ -137,7 +137,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
 
                     result[i] = {
                         epub: await db.addBook([data])[0],
-                        mobi: await db.addBook([modiData])[0]
+                        mobi: await db.addBook([mobiData])[0]
                     };
                     break;
                 case "application/vnd.amazon.ebook":
