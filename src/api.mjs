@@ -4,7 +4,6 @@ import express from "express";
 import session from "express-session";
 import sqliteSession from "connect-sqlite3";
 import helmet from "helmet";
-import bodyParser from "body-parser";
 import http from "http";
 
 import multer from "multer";
@@ -15,7 +14,8 @@ import path from "path";
 
 import db from "./db.mjs";
 
-import convert from "./convert.mjs";
+import { convert } from "./convert.mjs";
+import { fileURLToPath } from "url";
 
 const config = file.config;
 
@@ -26,11 +26,8 @@ const upload = multer({ dest: file.tmpDir });
 
 const clone = oldObject => JSON.parse(JSON.stringify(oldObject));
 
-app.use(
-    bodyParser.urlencoded({
-        extended: true
-    })
-);
+app.use(express.urlencoded());
+app.use(express.json());
 app.use(helmet());
 app.use(
     helmet.hidePoweredBy({
@@ -69,7 +66,7 @@ app.get("/book", async (req, res) => {
     res.json(result);
 });
 
-app.post("/series", async (req, res) => {
+app.post("/series", upload.array(), async (req, res) => {
     const datas = req.body.series;
     const result = datas.map(async x => {
         try {
@@ -90,12 +87,14 @@ app.post("/book", upload.array("files"), async (req, res) => {
     const files = req.files;
     const datas = req.body.datas;
     const uploadTime = Date.now();
+    const rootDir = file.rootDir;
     let result = [];
 
     for (const i in files) {
         const file = files[i];
         const data = datas[i];
         data.upload_time = uploadTime;
+        file.path = rootDir + file.path;
         const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
         try {
             switch (file.mimetype) {

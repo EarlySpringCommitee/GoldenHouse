@@ -6,7 +6,7 @@ import uuid from "uuid/v4.js";
 
 import config from "../config.json";
 
-const rootDir = `${import.meta.url}/../../`;
+const rootDir = fileURLToPath(`${import.meta.url}/../../`);
 const tmpDir = mkdtempSync("bookEX-");
 
 async function addEpub(path, seriesName, no) {
@@ -71,4 +71,4 @@ export default {
     addEpub,
     addMobi
 };
-export { rootDir };
+export { rootDir, config };

@@ -110,23 +110,24 @@ async function searchSeries(data) {
             let queried = false;
             for (const key of fields.series) {
                 if (data[key] && data[key].length) {
-                    query.append(queried ? " AND " : "WHERE ");
+                    query.append(queried ? " AND " : " WHERE ");
                     if (key == "id") {
                         const arr = data[key];
                         query.append("(");
                         for (const i in arr) {
                             const e = arr[i];
-                            if (!i) query.append(" OR ");
+                            if (i > 0) query.append(" OR ");
                             if (isInt(e)) {
-                                query.append(SQL`(${key} = ${e})`);
+                                query.append(`(${key}`).append(SQL` = ${parseInt(e)})`);
                             } else {
-                                if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
-                                else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (isInt(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                if (e[1] == ">") query.append(`${key}`).append(SQL` > ${e[0]}`);
+                                else if (e[1] == "<") query.append(`(${key}`).append(SQL` < ${e[0]}`);
+                                else if (isInt(e[1]))
+                                    query.append(`(${key}`).append(SQL` BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
-                    } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
                     queried = true;
                 }
             }
@@ -165,23 +166,24 @@ async function deleteSeries(data) {
             let queried = false;
             for (const key of fields.series) {
                 if (data[key] && data[key].length) {
-                    query.append(queried ? " AND " : "WHERE ");
+                    query.append(queried ? " AND " : " WHERE ");
                     if (key == "id") {
                         const arr = data[key];
                         query.append("(");
                         for (const i in arr) {
                             const e = arr[i];
-                            if (!i) query.append(" OR ");
+                            if (i > 0) query.append(" OR ");
                             if (isInt(e)) {
-                                query.append(SQL`(${key} = ${e})`);
+                                query.append(`(${key}`).append(SQL` = ${e})`);
                             } else {
-                                if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
-                                else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (isInt(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                if (e[1] == ">") query.append(`${key}`).append(SQL` > ${e[0]}`);
+                                else if (e[1] == "<") query.append(`${key}`).append(SQL` < ${e[0]}`);
+                                else if (isInt(e[1]))
+                                    query.append(`(${key}`).append(SQL` BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
-                    } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
                     queried = true;
                 }
             }
@@ -229,26 +231,28 @@ async function searchBook(data) {
             let queried = false;
             for (const key of fields.book) {
                 if (data[key] && data[key].length) {
-                    query.append(queried ? " AND " : "WHERE ");
-                    if (key in ["id", "series_id", "no", "upload_time"]) {
+                    query.append(queried ? " AND " : " WHERE ");
+                    if (["id", "series_id", "no", "upload_time"].includes(key)) {
                         const arr = data[key];
                         query.append("(");
                         for (const i in arr) {
                             const e = arr[i];
-                            if (!i) query.append(" OR ");
+                            if (i > 0) query.append(" OR ");
                             if (isInt(e)) {
-                                query.append(SQL`(${key} = ${e})`);
+                                query.append(`(${key}`).append(SQL` = ${e})`);
                             } else {
-                                if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
-                                else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (isint(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                if (e[1] == ">") query.append(`${key}`).append(SQL` > ${e[0]}`);
+                                else if (e[1] == "<") query.append(`${key}`).append(SQL`$ < ${e[0]}`);
+                                else if (isint(e[1]))
+                                    query.append(`(${key}`).append(SQL` BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
-                    } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
                     queried = true;
                 }
             }
+            console.log(query.sql);
         }
         return await db.all(query);
     } catch (e) {
@@ -292,23 +296,24 @@ async function deleteBook(data) {
             let queried = false;
             for (const key of fields.book) {
                 if (data[key] && data[key].length) {
-                    query.append(queried ? " AND " : "WHERE ");
-                    if (key in ["id", "series_id", "no", "upload_time"]) {
+                    query.append(queried ? " AND " : " WHERE ");
+                    if (["id", "series_id", "no", "upload_time"].includes(key)) {
                         const arr = data[key];
                         query.append("(");
                         for (const i in arr) {
                             const e = arr[i];
-                            if (!i) query.append(" OR ");
+                            if (i > 0) query.append(" OR ");
                             if (typeof e != "object") {
-                                query.append(SQL`(${key} = ${e})`);
+                                query.append(`(${key}`).append(SQL` = ${e})`);
                             } else {
-                                if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
-                                else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (isInt(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                if (e[1] == ">") query.append(`${key}`).append(SQL` > ${e[0]}`);
+                                else if (e[1] == "<") query.append(`${key}`).append(SQL` < ${e[0]}`);
+                                else if (isInt(e[1]))
+                                    query.append(`(${key}`).append(SQL` BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
-                    } else query.append(SQL`${key} LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
                     queried = true;
                 }
             }
@@ -354,12 +359,14 @@ async function editBook(id, data) {
         for (const key of ["series_id", "title", "no", "filepath", "upload_time", "desc", "cover_id", "filetype"]) {
             if (data[key]) {
                 const e = data[key];
-                if (key in ["series_id", "no", "upload_time"]) {
+                if (["series_id", "no", "upload_time"].includes(key)) {
                     if (isInt(e)) continue;
                 } else if (typeof e != "string") {
                     continue;
                 } else {
-                    queried ? query.append(SQL`, ${key} = ${e}`) : query.append(SQL`${key} = ${e}`);
+                    queried
+                        ? query.append(`, ${key}`).append(SQL` = ${e}`)
+                        : query.append(`${key}`).append(SQL` = ${e}`);
                     queried = true;
                 }
             }
@@ -403,7 +410,9 @@ async function editSeries(id, data) {
                 if (typeof e != "string") {
                     continue;
                 } else {
-                    queried ? query.append(SQL`, ${key} = ${e}`) : query.append(SQL`${key} = ${e}`);
+                    queried
+                        ? query.append(`, ${key}`).append(SQL` = ${e}`)
+                        : query.append(`${key}`).append(SQL`${key} = ${e}`);
                     queried = true;
                 }
             }
