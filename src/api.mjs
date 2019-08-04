@@ -210,7 +210,7 @@ app.delete("/series", async (req, res) => {
 });
 
 app.delete("/book", async (req, res) => {
-    const ids = req.query.series;
+    const ids = req.query.book;
     const result = ids.map(async id => {
         try {
             const books = (await db.searchBook({ id }))[0].filepath;
