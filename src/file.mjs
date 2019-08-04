@@ -59,16 +59,10 @@ async function addImage(buffer, extname) {
         const filename = `${id}${extname}`;
         await fs.access(filename, fs.F_OK);
     } catch (e) {
-        return await addImage(buffer, extname);
+        await fs.writeFile(`${config.storage.public}/image/${filename}`, buffer);
+        return id;
     }
-    try {
-        await fs.mkdir(`${config.storage.public}/image/`, config.folderMask);
-    } catch (e) {
-        if (e.code != "EEXIST") throw e;
-    }
-
-    await fs.writeFile(`${config.storage.public}/image/${filename}`, buffer);
-    return id;
+    return await addImage(buffer, extname);
 }
 
 async function moveTempEpubFile(path) {
