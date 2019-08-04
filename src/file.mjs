@@ -1,4 +1,4 @@
-import { promises as fs } from "fs";
+import { promises as fs, constants as fsc } from "fs";
 import { mkdtempSync } from "fs";
 import { fileURLToPath } from "url";
 
@@ -58,13 +58,13 @@ async function addImage(buffer, extname) {
     const filename = `${id}${extname}`;
     const path = `${rootDir}${config.storage.public}/image/${filename}`;
     try {
-        await fs.access(path, fs.F_OK);
+        await fs.access(path, fsc.F_OK);
+        return await addImage(buffer, extname);
     } catch (e) {
         // File Does not exist.
         await fs.writeFile(path, buffer);
         return filename;
     }
-    return await addImage(buffer, extname);
 }
 
 async function moveTempEpubFile(path) {

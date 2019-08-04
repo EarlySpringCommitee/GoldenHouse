@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import { promises as fs } from "fs";
+import { promises as fs, constants as fsc } from "fs";
 import { rootDir, config } from "./file.mjs";
 import path from "path";
 import download from "download";
@@ -7,7 +7,7 @@ import process from "process";
 
 const binPath = `${rootDir}/bin/`;
 const checkFileExist = () =>
-    fs.access(`${binPath}/kindlegen`, fs.F_OK).catch(() => {
+    fs.access(`${binPath}/kindlegen`, fsc.F_OK).catch(() => {
         const binUrl = (function() {
             switch (process.platform) {
                 case "darwin":
@@ -51,7 +51,7 @@ function convert(inputPath, outputPath) {
                 reject(new Error("kindlegen returned error " + code));
             }
             try {
-                fs.access(outputPath, fs.F_OK).then(() => {
+                fs.access(outputPath, fsc.F_OK).then(() => {
                     if (config.debug) console.log(`${outputPath} converted successfully.`);
                     resolve(outputPath);
                 });
