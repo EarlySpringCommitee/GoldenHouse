@@ -6,6 +6,11 @@ import { fileURLToPath } from "url";
 
 const dbPromise = sqlite.open(fileURLToPath(`${import.meta.url}/../../db.db3`), { Promise });
 
+function isInt(str) {
+    var n = Math.floor(Number(str));
+    return n !== Infinity && String(n) === str && n >= 0;
+}
+
 const fields = {
     series: ["id", "title", "author", "desc", "cover_id"],
     book: ["id", "series_id", "title", "no", "filepath", "upload_time", "desc", "cover_id", "filetype"]
@@ -112,13 +117,12 @@ async function searchSeries(data) {
                         for (const i in arr) {
                             const e = arr[i];
                             if (!i) query.append(" OR ");
-                            if (typeof e == "number") {
+                            if (isInt(e)) {
                                 query.append(SQL`(${key} = ${e})`);
                             } else {
                                 if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
                                 else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (typeof e[1] == "number")
-                                    query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                else if (isInt(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
@@ -168,13 +172,12 @@ async function deleteSeries(data) {
                         for (const i in arr) {
                             const e = arr[i];
                             if (!i) query.append(" OR ");
-                            if (typeof e == "number") {
+                            if (isInt(e)) {
                                 query.append(SQL`(${key} = ${e})`);
                             } else {
                                 if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
                                 else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (typeof e[1] == "number")
-                                    query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                else if (isInt(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
@@ -233,13 +236,12 @@ async function searchBook(data) {
                         for (const i in arr) {
                             const e = arr[i];
                             if (!i) query.append(" OR ");
-                            if (typeof e == "number") {
+                            if (isInt(e)) {
                                 query.append(SQL`(${key} = ${e})`);
                             } else {
                                 if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
                                 else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (typeof e[1] == "number")
-                                    query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                else if (isint(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
@@ -297,13 +299,12 @@ async function deleteBook(data) {
                         for (const i in arr) {
                             const e = arr[i];
                             if (!i) query.append(" OR ");
-                            if (typeof e == "number") {
+                            if (typeof e != "object") {
                                 query.append(SQL`(${key} = ${e})`);
                             } else {
                                 if (e[1] == ">") query.append(SQL`${key} > ${e[0]}`);
                                 else if (e[1] == "<") query.append(SQL`${key} < ${e[0]}`);
-                                else if (typeof e[1] == "number")
-                                    query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
+                                else if (isInt(e[1])) query.append(SQL`(${key} BETWEEN ${e[1]} and ${e[0]})`);
                             }
                         }
                         query.append(")");
@@ -354,7 +355,7 @@ async function editBook(id, data) {
             if (data[key]) {
                 const e = data[key];
                 if (key in ["series_id", "no", "upload_time"]) {
-                    if (typeof e != "number") continue;
+                    if (isInt(e)) continue;
                 } else if (typeof e != "string") {
                     continue;
                 } else {

@@ -49,7 +49,7 @@ app.use(express.static(config.storage.public));
 /* API */
 app.get("/series", async (req, res) => {
     let query = {};
-    for (const key of ["id", "title", "author", "desc", "cover_id"]) {
+    for (const key of db.fields.series) {
         if (req.query[key]) {
             query[key] = req.query[key];
         }
