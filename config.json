@@ -2,7 +2,7 @@
     "storage": {
         "epub": "storage/epub",
         "mobi": "storage/mobi",
-        "public": "public"
+        "image": "storage/image"
     },
     "port": 3000,
     "secret": "bb1069",
