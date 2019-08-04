@@ -61,6 +61,12 @@ async function addImage(buffer, extname) {
     return id;
 }
 
+async function moveTempEpubFile(path) {
+    const newPath = path + ".epub";
+    await fs.rename(path, newPath);
+    return newPath;
+}
+
 export default {
     config,
     rootDir,
@@ -69,6 +75,7 @@ export default {
     addImage,
     tmpDir,
     addEpub,
-    addMobi
+    addMobi,
+    moveTempEpubFile
 };
 export { rootDir, config };

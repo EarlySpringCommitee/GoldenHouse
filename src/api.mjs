@@ -94,7 +94,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
         const f = files[i];
         const data = datas[i];
         data.upload_time = uploadTime;
-        f.path = rootDir + f.path;
+        f.path = await moveTempEpubFile(rootDir + f.path);
         const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
         try {
             switch (f.mimetype) {

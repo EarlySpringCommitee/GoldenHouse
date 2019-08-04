@@ -37,7 +37,9 @@ async function convert(inputPath, outputPath) {
         `${binPath}/kindlegen`,
         [`'${inputPath}'`, "-c2", "-verbose", "-o", path.basename(outputPath)],
         {
-            cwd: path.dirname(outputPath)
+            cwd: path.dirname(outputPath),
+            uid: process.getuid() || 1000,
+            gid: process.getgid() || 1000
         }
     );
     if (config.debug)
