@@ -57,10 +57,11 @@ async function addBook(data) {
     */
     try {
         const db = await dbPromise;
-        return data.map(async x => {
-            try {
-                const result = await db.run(
-                    SQL`INSERT INTO book VALUES (
+        return await Promise.all(
+            data.map(async x => {
+                try {
+                    const result = await db.run(
+                        SQL`INSERT INTO book VALUES (
                             ${null},
                             ${x.series_id},
                             ${x.title},
@@ -71,12 +72,13 @@ async function addBook(data) {
                             ${x.cover_id},
                             ${x.filetype}
                         )`
-                );
-                return result.lastID;
-            } catch (e) {
-                return e;
-            }
-        });
+                    );
+                    return result.lastID;
+                } catch (e) {
+                    return e;
+                }
+            })
+        );
     } catch (e) {
         throw e;
     }

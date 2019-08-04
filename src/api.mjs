@@ -122,7 +122,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         const [data, coverMime] = await epub.getImageAsync(cover.id);
                         const cover_id = await file.addImage(data, extName);
                         if (config.debug) console.log(`Cover ID: ${cover_id}`);
-                        data.cover_id = cover_id;
+                        data["cover_id"] = cover_id;
                     }
 
                     const mobiData = clone(data);
