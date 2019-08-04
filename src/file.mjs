@@ -10,9 +10,9 @@ const rootDir = fileURLToPath(`${import.meta.url}/../../`);
 const tmpDir = mkdtempSync("bookEX-");
 
 async function addEpub(path, seriesName, no) {
-    const newPath = fileURLToPath(`${path}/${seriesName}/${no}.epub`);
+    const newPath = fileURLToPath(`${config.storage.epub}/${seriesName}/${no}.epub`);
     try {
-        await fs.mkdir(`${fileURLToPath(`${path}/${seriesName}`)}`, config.folderMask);
+        await fs.mkdir(`${fileURLToPath(`${config.storage.epub}/${seriesName}/`)}`, config.folderMask);
     } catch (e) {
         if (e.code != "EEXIST") throw e;
     }
@@ -21,9 +21,9 @@ async function addEpub(path, seriesName, no) {
 }
 
 async function addMobi(path, seriesName, no) {
-    const newPath = fileURLToPath(`${path}/${seriesName}/${no}.mobi`);
+    const newPath = fileURLToPath(`${config.storage.mobi}/${seriesName}/${no}.mobi`);
     try {
-        await fs.mkdir(`${fileURLToPath(`${path}/${seriesName}`)}`, config.folderMask);
+        await fs.mkdir(`${fileURLToPath(`${config.storage.mobi}/${seriesName}/`)}`, config.folderMask);
     } catch (e) {
         if (e.code != "EEXIST") throw e;
     }
