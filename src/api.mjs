@@ -101,10 +101,12 @@ app.post("/book", upload.array("files"), async (req, res) => {
                 case "application/epub+zip":
                     // Convert to MOBI
                     const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
+                    if (config.debug) console.log(`mobiTmpPath: ${mobiTmpPath}`);
 
                     // Read EPUB meta
                     const epub = await EPub.createAsync(f.path);
                     const meta = epub.metadata;
+                    if (config.debug) console.log(`EPUB Meta: `, meta);
                     for (let [key, value] of Object.entries({
                         title: "title",
                         author: "creator",
@@ -113,6 +115,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         data[key] = meta[value] && meta[value].length ? meta[value] : data[key];
                     }
                     let cover = epub.listImage();
+                    if (config.debug) console.log(`EPUB Covers: `, cover);
                     if (cover.length) {
                         cover = cover[0];
                         const extName = path.extname(cover.href);
@@ -122,11 +125,14 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     }
 
                     const mobiData = clone(data);
+
                     data.filepath = await file.addEpub(f.path, seriesName, data.no);
                     data.filetype = "epub";
+                    if (config.debug) console.log(`EPUB File data: `, data);
 
                     mobiData.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
                     mobiData.filetype = "mobi";
+                    if (config.debug) console.log(`EPUB File data: `, mobiData);
 
                     result[i] = {
                         epub: await db.addBook(data),

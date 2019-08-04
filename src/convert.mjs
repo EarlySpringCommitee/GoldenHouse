@@ -52,6 +52,7 @@ function convert(inputPath, outputPath) {
             }
             try {
                 fs.access(outputPath, fs.F_OK).then(() => {
+                    if (config.debug) console.log(`${outputPath} converted successfully.`);
                     resolve(outputPath);
                 });
             } catch (e) {
