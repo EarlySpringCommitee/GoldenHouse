@@ -57,10 +57,12 @@ async function addImage(buffer, extname) {
     try {
         const id = uuid();
         const filename = `${id}${extname}`;
-        await fs.access(filename, fs.F_OK);
+        const path = `${rootDir}${config.storage.public}/image/${filename}`;
+        await fs.access(path, fs.F_OK);
     } catch (e) {
-        await fs.writeFile(`${config.storage.public}/image/${filename}`, buffer);
-        return id;
+        // File Does not exist.
+        await fs.writeFile(path, buffer);
+        return filename;
     }
     return await addImage(buffer, extname);
 }
