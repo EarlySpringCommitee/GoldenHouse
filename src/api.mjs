@@ -133,11 +133,11 @@ app.post("/book", upload.array("files"), async (req, res) => {
 
                     mobiData.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
                     mobiData.filetype = "mobi";
-                    if (config.debug) console.log(`EPUB File data: `, mobiData);
+                    if (config.debug) console.log(`MOBI File data: `, mobiData);
 
                     result[i] = {
-                        epub: await db.addBook(data),
-                        mobi: await db.addBook(modiData)
+                        epub: await db.addBook([data])[0],
+                        mobi: await db.addBook([modiData])[0]
                     };
                     break;
                 case "application/vnd.amazon.ebook":
@@ -146,7 +146,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     data.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
                     data.filetype = "mobi";
                     result[i] = {
-                        mobi: await db.addBook(data)
+                        mobi: await db.addBook([data])[0]
                     };
                     break;
             }
