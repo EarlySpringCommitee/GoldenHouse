@@ -100,7 +100,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
             switch (f.mimetype) {
                 case "application/epub+zip":
                     // Convert to MOBI
-                    // const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
+                    const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
 
                     // Read EPUB meta
                     const epub = await EPub.createAsync(f.path);
