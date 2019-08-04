@@ -252,7 +252,6 @@ async function searchBook(data) {
                     queried = true;
                 }
             }
-            console.log(query.sql);
         }
         return await db.all(query);
     } catch (e) {

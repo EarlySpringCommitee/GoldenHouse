@@ -8,7 +8,7 @@ import http from "http";
 
 import multer from "multer";
 
-import EPub from "epub2";
+import EPub from "epub2/node.js";
 import file from "./file.mjs";
 import path from "path";
 
@@ -91,19 +91,20 @@ app.post("/book", upload.array("files"), async (req, res) => {
     let result = [];
 
     for (const i in files) {
-        const file = files[i];
+        const f = files[i];
         const data = datas[i];
         data.upload_time = uploadTime;
-        file.path = rootDir + file.path;
+        f.path = rootDir + f.path;
         const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
         try {
-            switch (file.mimetype) {
+            switch (f.mimetype) {
                 case "application/epub+zip":
                     // Convert to MOBI
-                    const mobiTmpPath = await convert(file.path, `${file.path}.mobi`);
+                    // const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
 
                     // Read EPUB meta
-                    const meta = (await EPub.createAsync(file.path)).metadata;
+                    const epub = await EPub.createAsync(f.path);
+                    const meta = epub.metadata;
                     for (let [key, value] of Object.entries({
                         title: "title",
                         author: "creator",
@@ -121,7 +122,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     }
 
                     const mobiData = clone(data);
-                    data.filepath = await file.addEpub(file.path, seriesName, data.no);
+                    data.filepath = await file.addEpub(f.path, seriesName, data.no);
                     data.filetype = "epub";
 
                     mobiData.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);

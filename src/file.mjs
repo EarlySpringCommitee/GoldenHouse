@@ -49,7 +49,7 @@ async function addImage(buffer, extname) {
         const filename = `${id}${extname}`;
         await fs.access(filename, fs.F_OK);
     } catch (e) {
-        return await addImage(buffer);
+        return await addImage(buffer, extname);
     }
     try {
         await fs.mkdir(`${config.storage.public}/image/`, config.folderMask);
