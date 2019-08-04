@@ -131,7 +131,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     data.filetype = "epub";
                     if (config.debug) console.log(`EPUB File data: `, data);
 
-                    mobiData.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
+                    mobiData.filepath = await file.addMobi(mobiTmpPath, seriesName, data.no);
                     mobiData.filetype = "mobi";
                     if (config.debug) console.log(`MOBI File data: `, mobiData);
 
