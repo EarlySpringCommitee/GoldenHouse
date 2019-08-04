@@ -54,10 +54,10 @@ async function deleteSeries(name) {
 }
 
 async function addImage(buffer, extname) {
+    const id = uuid();
+    const filename = `${id}${extname}`;
+    const path = `${rootDir}${config.storage.public}/image/${filename}`;
     try {
-        const id = uuid();
-        const filename = `${id}${extname}`;
-        const path = `${rootDir}${config.storage.public}/image/${filename}`;
         await fs.access(path, fs.F_OK);
     } catch (e) {
         // File Does not exist.
