@@ -33,9 +33,17 @@ fs.mkdir(binPath, config.folderMask)
 
 async function convert(inputPath, outputPath) {
     await checkFileExist;
-    const kindlegen = spawn(`${binPath}/kindlegen`, [inputPath, "-c2", "-verbose", "-o", path.basename(outputPath)], {
-        cwd: path.dirname(outputPath)
-    });
+    const kindlegen = spawn(
+        `${binPath}/kindlegen`,
+        [`'${inputPath}'`, "-c2", "-verbose", "-o", path.basename(outputPath)],
+        {
+            cwd: path.dirname(outputPath)
+        }
+    );
+    if (config.debug)
+        kindlegen.stdout.on("data", function(data) {
+            console.log("kindlegen: " + data);
+        });
     return kindlegen.on("close", async function(code) {
         if (code !== 0 && code !== 1) {
             throw new Error("kindlegen returned error " + code);
