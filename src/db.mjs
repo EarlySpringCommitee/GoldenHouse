@@ -4,7 +4,7 @@ import sqlite from "sqlite";
 
 import { fileURLToPath } from "url";
 
-const dbPromise = sqlite.open(fileURLToPath(`${import.meta.url}/../../db.test.db3`), { Promise });
+const dbPromise = sqlite.open(fileURLToPath(`${import.meta.url}/../../db.db3`), { Promise });
 
 const fields = {
     series: ["id", "title", "author", "desc", "cover_id"],
