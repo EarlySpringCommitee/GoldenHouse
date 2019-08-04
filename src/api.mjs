@@ -158,7 +158,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
 });
 
 app.patch("/series", async (req, res) => {
-    const datas = req.query.series;
+    const datas = req.body.series;
     const result = datas.map(async x => {
         try {
             return await db.editSeries(x.id, x);
@@ -174,7 +174,7 @@ app.patch("/series", async (req, res) => {
 });
 
 app.patch("/book", async (req, res) => {
-    const datas = req.query.book;
+    const datas = req.body.book;
     const result = datas.map(async x => {
         try {
             return await db.editBook(x.id, x);
@@ -190,7 +190,7 @@ app.patch("/book", async (req, res) => {
 });
 
 app.delete("/series", async (req, res) => {
-    const ids = req.query.series;
+    const ids = req.body.series;
     const result = ids.map(async x => {
         try {
             return (
@@ -210,7 +210,7 @@ app.delete("/series", async (req, res) => {
 });
 
 app.delete("/book", async (req, res) => {
-    const ids = req.query.book;
+    const ids = req.body.book;
     const result = ids.map(async id => {
         try {
             const books = (await db.searchBook({ id }))[0].filepath;
