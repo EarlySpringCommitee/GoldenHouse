@@ -37,7 +37,6 @@ app.use(
         setTo: "PHP 4.2.0"
     })
 );
-app.use(session);
 app.use(
     session({
         store: new SQLiteStore(),
