@@ -41,7 +41,6 @@ app.use(
         cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 1 week
     })
 );
-app.use(express.static(config.storage.public));
 
 /* API */
 app.get("/series", async (req, res) => {
@@ -114,18 +113,23 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     })) {
                         data[key] = meta[value] && meta[value].length ? meta[value] : data[key];
                     }
+
+                    const mobiData = clone(data);
+
                     let cover = epub.listImage();
                     if (config.debug) console.log(`EPUB Covers: `, cover);
                     if (cover.length) {
                         cover = cover[0];
                         const extName = path.extname(cover.href);
                         const [buffer, coverMime] = await epub.getImageAsync(cover.id);
-                        const cover_id = await file.addImage(buffer, extName);
-                        if (config.debug) console.log(`Cover ID: ${cover_id}`);
-                        data["cover_id"] = cover_id;
+                        const cover_ids = [
+                            await file.addImage(buffer, extName, seriesName, "epub"),
+                            await file.addImage(buffer, extName, seriesName, "mobi")
+                        ];
+                        if (config.debug) console.log(`Cover IDs: `, cover_id);
+                        data["cover_id"] = cover_ids[0];
+                        mobiData["cover_id"] = cover_ids[1];
                     }
-
-                    const mobiData = clone(data);
 
                     data.filepath = await file.addEpub(f.path, seriesName, data.no);
                     data.filetype = "epub";
@@ -144,8 +148,8 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     }
 
                     result[i] = {
-                        epub: resultEpub[0],
-                        mobi: resultMobi[0]
+                        epub: resultEpub[0] || false,
+                        mobi: resultMobi[0] || false
                     };
                     break;
                 case "application/vnd.amazon.ebook":
@@ -154,7 +158,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     data.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
                     data.filetype = "mobi";
                     result[i] = {
-                        mobi: await db.addBook([data])[0]
+                        mobi: (await db.addBook([data])[0]) || false
                     };
                     break;
             }
@@ -221,12 +225,16 @@ app.delete("/book", async (req, res) => {
     const ids = req.body.book;
     const result = ids.map(async id => {
         try {
-            const books = (await db.searchBook({ id }))[0].filepath;
-            const del = (await file.deleteBook([books]))[0];
+            const book = (await db.searchBook({ id }))[0].filepath;
+            const image = (await db.searchBook({ id }))[0].cover_id;
+            const del = (await file.deleteBook([book]))[0];
             if (del !== true) {
                 if (del.message) throw del;
                 else return del;
             }
+            try {
+                await file.deleteImage([image]);
+            } catch (e) {}
             return Boolean(await db.deleteBook({ id }));
         } catch (e) {
             if (config.debug) {

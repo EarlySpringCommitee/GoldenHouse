@@ -48,22 +48,45 @@ async function deleteBook(paths) {
     );
 }
 
+async function deleteImage(basenames) {
+    const paths = basenames.map(x => `${rootDir}${config.storage.image}/${x}`);
+    return await Promise.all(
+        paths.map(async path => {
+            try {
+                await fs.unlink(path);
+                return true;
+            } catch (e) {
+                if (config.debug) {
+                    return e;
+                } else {
+                    return false;
+                }
+            }
+        })
+    );
+}
+
 async function deleteSeries(name) {
     await fs.rmdir(`${rootDir}${config.storage.epub}/${name}`);
+    try {
+        fs.rmdir(`${rootDir}${config.storage.image}/epub/${name}`);
+        fs.rmdir(`${rootDir}${config.storage.image}/mobi/${name}`);
+    } catch (e) {}
     return true;
 }
 
-async function addImage(buffer, extname) {
+async function addImage(buffer, extname, seriesName, type) {
     const id = uuid();
     const filename = `${id}${extname}`;
-    const path = `${rootDir}${config.storage.public}/image/${filename}`;
+    await fs.mkdir(`${rootDir}${config.storage.image}/${type}/${seriesName}/`, { recursive: true });
+    const path = `${rootDir}${config.storage.image}/${type}/${seriesName}/${filename}`;
     try {
         await fs.access(path, fsc.F_OK);
         return await addImage(buffer, extname);
     } catch (e) {
         // File Does not exist.
-        await fs.writeFile(path, buffer);
-        return filename;
+        await fs.writeFile(buffer, extname, seriesName, type);
+        return `${type}/${seriesName}/${filename}`;
     }
 }
 
@@ -82,6 +105,7 @@ export default {
     tmpDir,
     addEpub,
     addMobi,
-    moveTempEpubFile
+    moveTempEpubFile,
+    deleteImage
 };
 export { rootDir, config };
