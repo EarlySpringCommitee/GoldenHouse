@@ -119,8 +119,8 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     if (cover.length) {
                         cover = cover[0];
                         const extName = path.extname(cover.href);
-                        const [data, coverMime] = await epub.getImageAsync(cover.id);
-                        const cover_id = await file.addImage(data, extName);
+                        const [buffer, coverMime] = await epub.getImageAsync(cover.id);
+                        const cover_id = await file.addImage(buffer, extName);
                         if (config.debug) console.log(`Cover ID: ${cover_id}`);
                         data["cover_id"] = cover_id;
                     }
