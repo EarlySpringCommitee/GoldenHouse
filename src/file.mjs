@@ -11,12 +11,22 @@ const tmpDir = mkdtempSync("bookEX-");
 
 async function addEpub(path, seriesName, no) {
     const newPath = fileURLToPath(`${path}/${seriesName}/${no}.epub`);
+    try {
+        await fs.mkdir(`${fileURLToPath(`${path}/${seriesName}`)}`, config.folderMask);
+    } catch (e) {
+        if (e.code != "EEXIST") throw e;
+    }
     await fs.rename(path, newPath);
     return newPath;
 }
 
 async function addMobi(path, seriesName, no) {
     const newPath = fileURLToPath(`${path}/${seriesName}/${no}.mobi`);
+    try {
+        await fs.mkdir(`${fileURLToPath(`${path}/${seriesName}`)}`, config.folderMask);
+    } catch (e) {
+        if (e.code != "EEXIST") throw e;
+    }
     await fs.rename(path, newPath);
     return newPath;
 }
