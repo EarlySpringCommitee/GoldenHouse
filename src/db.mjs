@@ -20,7 +20,7 @@ async function addSeries(data) {
     /*
         columns: 
             "id"	    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-            "title"	    TEXT NOT NULL,
+            "title"	    TEXT NOT NULL UNIQUE,
             "author"	TEXT,
             "desc"	    TEXT,
             "cover_id"	TEXT
@@ -100,7 +100,7 @@ async function searchSeries(data) {
     /*
         columns:
             "id"	    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-            "title"	    TEXT NOT NULL,
+            "title"	    TEXT NOT NULL UNIQUE,
             "author"	TEXT,
             "desc"	    TEXT,
             "cover_id"	TEXT
@@ -156,7 +156,7 @@ async function deleteSeries(data) {
     /*
         columns:
             "id"	    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-            "title"	    TEXT NOT NULL,
+            "title"	    TEXT NOT NULL UNIQUE,
             "author"	TEXT,
             "desc"	    TEXT,
             "cover_id"	TEXT
@@ -396,7 +396,7 @@ async function editSeries(id, data) {
     /*
     columns:
         "id"	    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-        "title"	    TEXT NOT NULL,
+        "title"	    TEXT NOT NULL UNIQUE,
         "author"	TEXT,
         "desc"	    TEXT,
         "cover_id"	TEXT
