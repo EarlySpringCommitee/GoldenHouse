@@ -1,6 +1,11 @@
 {
     "storage": {
         "epub": "storage/epub",
-        "mobi": "storage/mobi"
-    }
+        "mobi": "storage/mobi",
+        "public": "public"
+    },
+    "port": 3000,
+    "secret": "bb1069",
+    "debug": true,
+    "folderMask": 744
 }

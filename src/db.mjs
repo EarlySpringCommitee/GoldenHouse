@@ -6,6 +6,11 @@ import { fileURLToPath } from "url";
 
 const dbPromise = sqlite.open(fileURLToPath(`${import.meta.url}/../../db.test.db3`), { Promise });
 
+const fields = {
+    series: ["id", "title", "author", "desc", "cover_id"],
+    book: ["id", "series_id", "title", "no", "filepath", "upload_time", "desc", "cover_id", "filetype"]
+};
+
 async function addSeries(data) {
     /*
         columns: 
@@ -98,17 +103,7 @@ async function searchSeries(data) {
         const query = SQL`SELECT * FROM series`;
         if (data) {
             let queried = false;
-            for (const key of [
-                "id",
-                "series_id",
-                "title",
-                "no",
-                "filepath",
-                "upload_time",
-                "desc",
-                "cover_id",
-                "filetype"
-            ]) {
+            for (const key of fields.series) {
                 if (data[key] && data[key].length) {
                     query.append(queried ? " AND " : "WHERE ");
                     if (key == "id") {
@@ -164,17 +159,7 @@ async function deleteSeries(data) {
         const query = SQL`DELETE FROM series`;
         if (data) {
             let queried = false;
-            for (const key of [
-                "id",
-                "series_id",
-                "title",
-                "no",
-                "filepath",
-                "upload_time",
-                "desc",
-                "cover_id",
-                "filetype"
-            ]) {
+            for (const key of fields.series) {
                 if (data[key] && data[key].length) {
                     query.append(queried ? " AND " : "WHERE ");
                     if (key == "id") {
@@ -239,17 +224,7 @@ async function searchBook(data) {
         const query = SQL`SELECT * FROM book`;
         if (data) {
             let queried = false;
-            for (const key of [
-                "id",
-                "series_id",
-                "title",
-                "no",
-                "filepath",
-                "upload_time",
-                "desc",
-                "cover_id",
-                "filetype"
-            ]) {
+            for (const key of fields.book) {
                 if (data[key] && data[key].length) {
                     query.append(queried ? " AND " : "WHERE ");
                     if (key in ["id", "series_id", "no", "upload_time"]) {
@@ -313,17 +288,7 @@ async function deleteBook(data) {
         const query = SQL`DELETE FROM book`;
         if (data) {
             let queried = false;
-            for (const key of [
-                "id",
-                "series_id",
-                "title",
-                "no",
-                "filepath",
-                "upload_time",
-                "desc",
-                "cover_id",
-                "filetype"
-            ]) {
+            for (const key of fields.book) {
                 if (data[key] && data[key].length) {
                     query.append(queried ? " AND " : "WHERE ");
                     if (key in ["id", "series_id", "no", "upload_time"]) {
@@ -352,3 +317,112 @@ async function deleteBook(data) {
         throw e;
     }
 }
+/**
+ * Edit a book.
+ *
+ * @param { Number } id Book ID.
+ * @param { Object } [data] Query Object.
+ * @param { Number } [data.series_id] Series ID.
+ * @param { String } [data.title] Title.
+ * @param { Number } [data.no] No.
+ * @param { String } [data.filepath] Filepath.
+ * @param { Number } [data.upload_time] Upload Time.
+ * @param { String } [data.desc] Description.
+ * @param { String } [data.cover_id] Cover ID.
+ * @param { String } [data.filetype] Filetype.
+ *
+ * @return { Promise<Boolean> }
+ */
+async function editBook(id, data) {
+    /*
+        columns:
+            "id"	        INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+            "series_id"	    INTEGER NOT NULL,
+            "title"	        TEXT NOT NULL,
+            "no"	        INTEGER NOT NULL,
+            "filepath"	    TEXT NOT NULL UNIQUE,
+            "upload_time"	INTEGER NOT NULL DEFAULT 0,
+            "desc"	        TEXT,
+            "cover_id"	    TEXT,
+            "filetype"	    TEXT
+    */
+    try {
+        const db = await dbPromise;
+        const query = SQL`UPDATE book SET `;
+        let queried = false;
+        for (const key of ["series_id", "title", "no", "filepath", "upload_time", "desc", "cover_id", "filetype"]) {
+            if (data[key]) {
+                const e = data[key];
+                if (key in ["series_id", "no", "upload_time"]) {
+                    if (typeof e != "number") continue;
+                } else if (typeof e != "string") {
+                    continue;
+                } else {
+                    queried ? query.append(SQL`, ${key} = ${e}`) : query.append(SQL`${key} = ${e}`);
+                    queried = true;
+                }
+            }
+        }
+        if (!queried) return false;
+        query.append(SQL` WHERE id = ${id}`);
+        return Boolean((await db.run(query)).changes);
+    } catch (e) {
+        throw e;
+    }
+}
+
+/**
+ * Edit a series.
+ *
+ * @param { Number } id Series ID.
+ * @param { Object } [data] Query Object.
+ * @param { String } [data.title] Title.
+ * @param { String } [data.author] Author.
+ * @param { String } [data.desc] Description.
+ * @param { String } [data.cover_id] Cover ID.
+ *
+ * @return { Promise<Boolean> }
+ */
+async function editSeries(id, data) {
+    /*
+    columns:
+        "id"	    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+        "title"	    TEXT NOT NULL,
+        "author"	TEXT,
+        "desc"	    TEXT,
+        "cover_id"	TEXT
+    */
+    try {
+        const db = await dbPromise;
+        const query = SQL`UPDATE series SET `;
+        let queried = false;
+        for (const key of ["title", "author", "desc", "cover_id"]) {
+            if (data[key]) {
+                const e = data[key];
+                if (typeof e != "string") {
+                    continue;
+                } else {
+                    queried ? query.append(SQL`, ${key} = ${e}`) : query.append(SQL`${key} = ${e}`);
+                    queried = true;
+                }
+            }
+        }
+        if (!queried) return false;
+        query.append(SQL` WHERE id = ${id}`);
+        return Boolean((await db.run(query)).changes);
+    } catch (e) {
+        throw e;
+    }
+}
+
+export default {
+    addSeries,
+    deleteSeries,
+    editSeries,
+    searchSeries,
+    addBook,
+    deleteBook,
+    editBook,
+    searchBook,
+    fields
+};
