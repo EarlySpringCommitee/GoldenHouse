@@ -129,7 +129,7 @@ async function searchSeries(data) {
                             }
                         }
                         query.append(")");
-                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE ${"%" + data[key] + "%"}`);
                     queried = true;
                 }
             }
@@ -185,7 +185,7 @@ async function deleteSeries(data) {
                             }
                         }
                         query.append(")");
-                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE ${"%" + data[key] + "%"}`);
                     queried = true;
                 }
             }
@@ -250,7 +250,7 @@ async function searchBook(data) {
                             }
                         }
                         query.append(")");
-                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE ${"%" + data[key] + "%"}`);
                     queried = true;
                 }
             }
@@ -314,7 +314,7 @@ async function deleteBook(data) {
                             }
                         }
                         query.append(")");
-                    } else query.append(`${key}`).append(SQL` LIKE '%${data[key]}%'`);
+                    } else query.append(`${key}`).append(SQL` LIKE ${"%" + data[key] + "%"}`);
                     queried = true;
                 }
             }
