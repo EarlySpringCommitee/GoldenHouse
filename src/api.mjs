@@ -319,14 +319,21 @@ app.patch("/book", async (req, res) => {
 });
 
 app.delete("/series", async (req, res) => {
-    const ids = req.body.series;
-    const result = ids.map(async id => {
+    const idQueriesArray = req.body.series;
+    const result = idQueriesArray.map(async idQueries => {
         try {
-            return (
-                (await file.deleteSeries(id)) &&
-                Boolean(await db.deleteSeries({ id })) &&
-                Boolean(await db.deleteBook({ series_id: id }))
-            );
+            const serieses = await db.searchSeries({ id: idQueries });
+            let result2 = {};
+            for (const i in serieses) {
+                const e = books[i];
+                const id = e.id;
+                const seriesName = e.title;
+                result2[id] =
+                    Boolean(await file.deleteSeries(seriesName)) &&
+                    Boolean(await db.deleteSeries({ id: [id] })) &&
+                    Boolean(await db.deleteBook({ series_id: [id] }));
+            }
+            return result2;
         } catch (e) {
             if (config.debug) {
                 return e.message;
@@ -339,20 +346,27 @@ app.delete("/series", async (req, res) => {
 });
 
 app.delete("/book", async (req, res) => {
-    const ids = req.body.book;
-    const result = ids.map(async id => {
+    const idQueriesArray = req.body.book;
+    const result = idQueriesArray.map(async idQueries => {
         try {
-            const book = (await db.searchBook({ id }))[0].filepath;
-            const image = (await db.searchBook({ id }))[0].cover_id;
-            const del = (await file.deleteBook([book]))[0];
-            if (del !== true) {
-                if (del.message) throw del;
-                else return del;
+            const books = await db.searchBook({ id: idQueries });
+            let result2 = {};
+            for (const i in books) {
+                const e = books[i];
+                const book = e.filepath;
+                const image = e.cover_id;
+                const id = e.id;
+                const del = (await file.deleteBook([book]))[0];
+                if (del !== true) {
+                    if (del.message) throw del;
+                    else return del;
+                }
+                try {
+                    await file.deleteImage([image]);
+                } catch (err) {}
+                result2[id] = Boolean(await db.deleteBook({ id }));
             }
-            try {
-                await file.deleteImage([image]);
-            } catch (e) {}
-            return Boolean(await db.deleteBook({ id }));
+            return result2;
         } catch (e) {
             if (config.debug) {
                 return e.message;
