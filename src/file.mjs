@@ -10,6 +10,7 @@ const rootDir = fileURLToPath(`${import.meta.url}/../../`);
 const tmpDir = mkdtempSync("bookEX-");
 
 async function addEpub(path, folderName, no) {
+    const relPath = `${config.storage.epub}/${folderName}/${no}.epub`;
     const newPath = `${rootDir}${config.storage.epub}/${folderName}/${no}.epub`;
     try {
         await fs.mkdir(`${rootDir}${config.storage.epub}/${folderName}/`, config.folderMask);
@@ -17,10 +18,11 @@ async function addEpub(path, folderName, no) {
         if (e.code != "EEXIST") throw e;
     }
     await fs.rename(path, newPath);
-    return newPath;
+    return relPath;
 }
 
 async function addMobi(path, folderName, no) {
+    const relPath = `${config.storage.epub}/${folderName}/${no}.epub`;
     const newPath = `${rootDir}${config.storage.epub}/${folderName}/${no}.mobi`;
     try {
         await fs.mkdir(`${rootDir}${config.storage.epub}/${folderName}/`, config.folderMask);
@@ -28,14 +30,14 @@ async function addMobi(path, folderName, no) {
         if (e.code != "EEXIST") throw e;
     }
     await fs.rename(path, newPath);
-    return newPath;
+    return relPath;
 }
 
 async function deleteBook(paths) {
     return await Promise.all(
         paths.map(async path => {
             try {
-                await fs.unlink(path);
+                await fs.unlink(rootDir + path);
                 return true;
             } catch (e) {
                 if (config.debug) {
@@ -66,11 +68,16 @@ async function deleteImage(basenames) {
     );
 }
 
-async function deleteSeries(seriesId) {
-    await fs.rmdir(`${rootDir}${config.storage.epub}/${seriesId}`);
+async function deleteSeries(seriesName) {
+    await fs.rmdir(`${rootDir}${config.storage.mobi}/${seriesName}`);
     try {
-        fs.rmdir(`${rootDir}${config.storage.image}/epub/${seriesId}`);
-        fs.rmdir(`${rootDir}${config.storage.image}/mobi/${seriesId}`);
+        await fs.rmdir(`${rootDir}${config.storage.epub}/${seriesName}`);
+    } catch (e) {}
+    try {
+        await fs.rmdir(`${rootDir}${config.storage.image}/epub/${seriesName}`);
+    } catch (e) {}
+    try {
+        await fs.rmdir(`${rootDir}${config.storage.image}/mobi/${seriesName}`);
     } catch (e) {}
     return true;
 }
