@@ -40,6 +40,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.static("storage"));
+app.use("/storage", express.static("storage"));
 
 app.use(
     express.urlencoded({
