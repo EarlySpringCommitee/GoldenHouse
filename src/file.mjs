@@ -69,7 +69,9 @@ async function deleteImage(basenames) {
 }
 
 async function deleteSeries(seriesName) {
-    await fs.rmdir(`${rootDir}${config.storage.mobi}/${seriesName}`);
+    try {
+        await fs.rmdir(`${rootDir}${config.storage.mobi}/${seriesName}`);
+    } catch (e) {}
     try {
         await fs.rmdir(`${rootDir}${config.storage.epub}/${seriesName}`);
     } catch (e) {}
