@@ -190,6 +190,7 @@ async function deleteSeries(data) {
                 }
             }
         }
+        if (!queried) throw new Error("No queries.");
         const result = await db.run(query);
         return result.changes;
     } catch (e) {
@@ -319,6 +320,7 @@ async function deleteBook(data) {
                 }
             }
         }
+        if (!queried) throw new Error("No queries.");
         return await db.all(query);
     } catch (e) {
         throw e;
@@ -372,7 +374,7 @@ async function editBook(id, data) {
                 }
             }
         }
-        if (!queried) return false;
+        if (!queried) throw new Error("No queries.");
         query.append(SQL` WHERE id = ${id}`);
         return Boolean((await db.run(query)).changes);
     } catch (e) {
@@ -418,7 +420,7 @@ async function editSeries(id, data) {
                 }
             }
         }
-        if (!queried) return false;
+        if (!queried) throw new Error("No queries.");
         query.append(SQL` WHERE id = ${id}`);
         return Boolean((await db.run(query)).changes);
     } catch (e) {
