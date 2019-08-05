@@ -320,7 +320,7 @@ app.patch("/book", async (req, res) => {
 
 app.delete("/series", async (req, res) => {
     const ids = req.body.series;
-    const result = ids.map(async x => {
+    const result = ids.map(async id => {
         try {
             return (
                 (await file.deleteSeries(id)) &&
