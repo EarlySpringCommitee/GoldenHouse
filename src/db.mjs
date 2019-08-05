@@ -164,8 +164,8 @@ async function deleteSeries(data) {
     try {
         const db = await dbPromise;
         const query = SQL`DELETE FROM series`;
+        let queried = false;
         if (data) {
-            let queried = false;
             for (const key of fields.series) {
                 if (data[key] && data[key].length) {
                     query.append(queried ? " AND " : " WHERE ");
@@ -294,8 +294,8 @@ async function deleteBook(data) {
     try {
         const db = await dbPromise;
         const query = SQL`DELETE FROM book`;
+        let queried = false;
         if (data) {
-            let queried = false;
             for (const key of fields.book) {
                 if (data[key] && data[key].length) {
                     query.append(queried ? " AND " : " WHERE ");
