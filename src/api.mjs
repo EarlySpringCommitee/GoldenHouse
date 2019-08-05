@@ -132,7 +132,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         JSON.stringify({
                             success: false,
                             status: `Converting to MOBI...`,
-                            progress: `${i + 1}/${files.length}`
+                            progress: `${parseInt(i) + 1}/${files.length}`
                         })
                     );
                     const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
@@ -143,7 +143,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                             success: false,
                             status: `mobiTmpPath: ${Boolean(mobiTmpPath)}`,
                             debug: config.debug ? mobiTmpPath : undefined,
-                            progress: `${i + 1}/${files.length}`
+                            progress: `${parseInt(i) + 1}/${files.length}`
                         })
                     );
 
@@ -164,7 +164,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                                       cover: meta.cover
                                   }
                                 : undefined,
-                            progress: `${i + 1}/${files.length}`
+                            progress: `${parseInt(i) + 1}/${files.length}`
                         })
                     );
                     for (let [key, value] of Object.entries({
@@ -194,7 +194,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                                 success: false,
                                 status: `Cover IDs: ${Boolean(cover_ids)}`,
                                 debug: config.debug ? cover_ids : undefined,
-                                progress: `${i + 1}/${files.length}`
+                                progress: `${parseInt(i) + 1}/${files.length}`
                             })
                         );
                         data["cover_id"] = cover_ids[0];
@@ -210,7 +210,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                             success: false,
                             status: `EPUB File data: ${Boolean(data)}`,
                             debug: config.debug ? data : undefined,
-                            progress: `${i + 1}/${files.length}`
+                            progress: `${parseInt(i) + 1}/${files.length}`
                         })
                     );
 
@@ -223,7 +223,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                             success: false,
                             status: `MOBI File data: ${Boolean(mobiData)}`,
                             debug: config.debug ? mobiData : undefined,
-                            progress: `${i + 1}/${files.length}`
+                            progress: `${parseInt(i) + 1}/${files.length}`
                         })
                     );
 
@@ -250,7 +250,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         JSON.stringify({
                             success: false,
                             status: `MOBI`,
-                            progress: `${i + 1}/${files.length}`
+                            progress: `${parseInt(i) + 1}/${files.length}`
                         })
                     );
                     result[i] = {
@@ -267,7 +267,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     success: false,
                     status: `Error.`,
                     debug: config.debug ? e.message : undefined,
-                    progress: `${i + 1}/${files.length}`
+                    progress: `${parseInt(i) + 1}/${files.length}`
                 })
             );
         }

@@ -22,7 +22,7 @@ async function addEpub(path, folderName, no) {
 }
 
 async function addMobi(path, folderName, no) {
-    const relPath = `${config.storage.epub}/${folderName}/${no}.epub`;
+    const relPath = `${config.storage.epub}/${folderName}/${no}.mobi`;
     const newPath = `${rootDir}${config.storage.epub}/${folderName}/${no}.mobi`;
     try {
         await fs.mkdir(`${rootDir}${config.storage.epub}/${folderName}/`, config.folderMask);
