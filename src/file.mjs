@@ -51,7 +51,7 @@ async function deleteBook(paths) {
 }
 
 async function deleteImage(basenames) {
-    const paths = basenames.map(x => `${rootDir}${config.storage.image}/${x}`);
+    const paths = basenames.map(x => `${rootDir}${x}`);
     return await Promise.all(
         paths.map(async path => {
             try {
@@ -93,7 +93,7 @@ async function addImage(buffer, extname, folderName, type) {
     } catch (e) {
         // File Does not exist.
         await fs.writeFile(path, buffer);
-        return `${type}/${folderName}/${filename}`;
+        return `${config.storage.image}/${type}/${folderName}/${filename}`;
     }
 }
 
