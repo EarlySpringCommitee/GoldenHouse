@@ -26,7 +26,13 @@ const upload = multer({ dest: file.tmpDir });
 
 const clone = oldObject => JSON.parse(JSON.stringify(oldObject));
 
-app.use(express.urlencoded());
+app.use(express.static("storage"));
+
+app.use(
+    express.urlencoded({
+        extended: true
+    })
+);
 app.use(express.json());
 app.use(helmet());
 app.use(
@@ -38,7 +44,9 @@ app.use(
     session({
         store: new SQLiteStore(),
         secret: config.secret,
-        cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 } // 1 week
+        cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }, // 1 week
+        resave: false,
+        saveUninitialized: false
     })
 );
 
