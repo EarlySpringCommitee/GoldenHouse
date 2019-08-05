@@ -79,6 +79,9 @@ async function deleteSeries(seriesName) {
     try {
         await fs.rmdir(`${rootDir}${config.storage.image}/mobi/${seriesName}`);
     } catch (e) {}
+    try {
+        await fs.rmdir(`${rootDir}${config.storage.image}/series/${seriesName}`);
+    } catch (e) {}
     return true;
 }
 
@@ -103,6 +106,16 @@ async function moveTempEpubFile(path) {
     return newPath;
 }
 
+async function moveTempSeriesImage(oldPath, folderName) {
+    const extName = path.extname(oldPath);
+    const newDir = `${rootDir}${config.storage.image}/series/${folderName}/`;
+    const newPath = `${newDir}/series${extName}`;
+    const relPath = `${config.storage.image}/series/${folderName}/cover${extName}`;
+    await fs.mkdir(newDir, { recursive: true });
+    await fs.rename(oldPath, newPath);
+    return relPath;
+}
+
 export default {
     config,
     rootDir,
@@ -113,6 +126,7 @@ export default {
     addEpub,
     addMobi,
     moveTempEpubFile,
-    deleteImage
+    deleteImage,
+    moveTempSeriesImage
 };
 export { rootDir, config };

@@ -87,10 +87,14 @@ app.get("/book", async (req, res) => {
     res.json(result);
 });
 
-app.post("/series", upload.array(), async (req, res) => {
+app.post("/series", upload.array("images"), async (req, res) => {
+    const files = req.files;
     const datas = req.body.series;
-    const result = datas.map(async x => {
+    const result = datas.map(async (x, i) => {
         try {
+            if (files[i] && x.title && x.title.length) {
+                x.cover_id = await file.moveTempSeriesImage(files[i]["path"], x.title);
+            }
             const result = await db.addSeries(x);
             return result;
         } catch (e) {
