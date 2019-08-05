@@ -413,13 +413,14 @@ async function editSeries(id, data) {
                 } else {
                     queried
                         ? query.append(`, ${key}`).append(SQL` = ${e}`)
-                        : query.append(`${key}`).append(SQL`${key} = ${e}`);
+                        : query.append(`${key}`).append(SQL` = ${e}`);
                     queried = true;
                 }
             }
         }
         if (!queried) return false;
         query.append(SQL` WHERE id = ${id}`);
+        console.log(query.sql);
         return Boolean((await db.run(query)).changes);
     } catch (e) {
         throw e;
