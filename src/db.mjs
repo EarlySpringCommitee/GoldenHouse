@@ -420,11 +420,28 @@ async function editSeries(id, data) {
         }
         if (!queried) return false;
         query.append(SQL` WHERE id = ${id}`);
-        console.log(query.sql);
         return Boolean((await db.run(query)).changes);
     } catch (e) {
         throw e;
     }
+}
+
+async function addStatus() {
+    const db = await dbPromise;
+    const result = await db.run(SQL`INSERT INTO convert_status VALUES (${null},${null},${null})`);
+    return result.lastID;
+}
+
+async function editStatus(id, status) {
+    const db = await dbPromise;
+    const query = SQL`UPDATE convert_status SET status = ${status} WHERE id = ${id}`;
+    return Boolean((await db.run(query)).changes);
+}
+
+async function getStatus(id) {
+    const db = await dbPromise;
+    const query = SQL`SELECT status FROM convert_status WHERE id = ${id}`;
+    return await db.all(query)[0];
 }
 
 export default {
@@ -436,5 +453,8 @@ export default {
     deleteBook,
     editBook,
     searchBook,
-    fields
+    fields,
+    addStatus,
+    editStatus,
+    getStatus
 };

@@ -95,6 +95,12 @@ app.post("/book", upload.array("files"), async (req, res) => {
     const datas = req.body.datas;
     const uploadTime = Date.now();
     const rootDir = file.rootDir;
+
+    const statusId = await db.addStatus();
+    res.json({
+        statusId
+    });
+
     let result = [];
 
     for (const i in files) {
@@ -102,18 +108,43 @@ app.post("/book", upload.array("files"), async (req, res) => {
         const data = clone(datas[i]);
         data.upload_time = uploadTime;
         f.path = await file.moveTempEpubFile(rootDir + f.path);
-        const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
+        const seriesId = data.series_id;
         try {
             switch (f.mimetype) {
                 case "application/epub+zip":
                     // Convert to MOBI
                     const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
                     if (config.debug) console.log(`mobiTmpPath: ${mobiTmpPath}`);
+                    db.editStatus(
+                        statusId,
+                        JSON.stringify({
+                            success: false,
+                            status: `mobiTmpPath: ${Boolean(mobiTmpPath)}`,
+                            debug: config.debug ? mobiTmpPath : undefined,
+                            progress: `${i + 1}/${files.length}`
+                        })
+                    );
 
                     // Read EPUB meta
                     const epub = await EPub.createAsync(f.path);
                     const meta = epub.metadata;
                     if (config.debug) console.log(`EPUB Meta: `, meta);
+                    db.editStatus(
+                        statusId,
+                        JSON.stringify({
+                            success: false,
+                            status: `EPUB Meta: ${Boolean(meta)}`,
+                            debug: config.debug
+                                ? {
+                                      title: meta.title,
+                                      creator: meta.creator,
+                                      description: meta.description,
+                                      cover: meta.cover
+                                  }
+                                : undefined,
+                            progress: `${i + 1}/${files.length}`
+                        })
+                    );
                     for (let [key, value] of Object.entries({
                         title: "title",
                         author: "creator",
@@ -127,25 +158,52 @@ app.post("/book", upload.array("files"), async (req, res) => {
                     let cover = epub.listImage();
                     if (config.debug) console.log(`EPUB Covers: `, cover);
                     if (cover.length) {
-                        cover = cover[0];
+                        cover = cover.find(x => x.id == meta.cover);
                         const extName = path.extname(cover.href);
-                        const [buffer, coverMime] = await epub.getImageAsync(cover.id);
+                        const [buffer, coverMime] = await epub.getImageAsync(meta.cover);
                         const cover_ids = [
-                            await file.addImage(buffer, extName, seriesName, "epub"),
-                            await file.addImage(buffer, extName, seriesName, "mobi")
+                            await file.addImage(buffer, extName, seriesId, "epub"),
+                            await file.addImage(buffer, extName, seriesId, "mobi")
                         ];
                         if (config.debug) console.log(`Cover IDs: `, cover_id);
+                        db.editStatus(
+                            statusId,
+                            JSON.stringify({
+                                success: false,
+                                status: `Cover IDs: ${Boolean(cover_id)}`,
+                                debug: config.debug ? cover_id : undefined,
+                                progress: `${i + 1}/${files.length}`
+                            })
+                        );
                         data["cover_id"] = cover_ids[0];
                         mobiData["cover_id"] = cover_ids[1];
                     }
 
-                    data.filepath = await file.addEpub(f.path, seriesName, data.no);
+                    data.filepath = await file.addEpub(f.path, seriesId, data.no);
                     data.filetype = "epub";
                     if (config.debug) console.log(`EPUB File data: `, data);
+                    db.editStatus(
+                        statusId,
+                        JSON.stringify({
+                            success: false,
+                            status: `EPUB File data: ${Boolean(data)}`,
+                            debug: config.debug ? data : undefined,
+                            progress: `${i + 1}/${files.length}`
+                        })
+                    );
 
-                    mobiData.filepath = await file.addMobi(mobiTmpPath, seriesName, data.no);
+                    mobiData.filepath = await file.addMobi(mobiTmpPath, seriesId, data.no);
                     mobiData.filetype = "mobi";
                     if (config.debug) console.log(`MOBI File data: `, mobiData);
+                    db.editStatus(
+                        statusId,
+                        JSON.stringify({
+                            success: false,
+                            status: `MOBI File data: ${Boolean(mobiData)}`,
+                            debug: config.debug ? mobiData : undefined,
+                            progress: `${i + 1}/${files.length}`
+                        })
+                    );
 
                     const resultEpub = await db.addBook([data]);
                     const resultMobi = await db.addBook([mobiData]);
@@ -163,18 +221,42 @@ app.post("/book", upload.array("files"), async (req, res) => {
                 case "application/vnd.amazon.ebook":
                 case "application/x-mobipocket-ebook":
                     // Read mobi metadata
-                    data.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
+                    data.filepath = await file.addEpub(mobiTmpPath, seriesId, data.no);
                     data.filetype = "mobi";
+                    db.editStatus(
+                        statusId,
+                        JSON.stringify({
+                            success: false,
+                            status: `MOBI`,
+                            progress: `${i + 1}/${files.length}`
+                        })
+                    );
                     result[i] = {
                         mobi: (await db.addBook([data])[0]) || false
                     };
+
                     break;
             }
         } catch (e) {
             result[i] = config.debug ? e.message : false;
+            db.editStatus(
+                statusId,
+                JSON.stringify({
+                    success: false,
+                    status: `Error.`,
+                    debug: config.debug ? e.message : undefined,
+                    progress: `${i + 1}/${files.length}`
+                })
+            );
         }
     }
-    return res.json(result);
+    db.editStatus(
+        statusId,
+        JSON.stringify({
+            success: true,
+            data: result
+        })
+    );
 });
 
 app.patch("/series", async (req, res) => {
@@ -253,6 +335,11 @@ app.delete("/book", async (req, res) => {
         }
     });
     return res.json(await Promise.all(result));
+});
+
+app.get("/convertStatus", async (req, res) => {
+    const id = req.query.id;
+    return res.json(JSON.parse((await db.getStatus(id)).status));
 });
 
 export default {
