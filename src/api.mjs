@@ -322,7 +322,7 @@ app.delete("/series", async (req, res) => {
     const idQueriesArray = req.body.series;
     const result = idQueriesArray.map(async idQueries => {
         try {
-            const serieses = await db.searchSeries({ id: idQueries });
+            const serieses = await db.searchSeries(idQueries);
             let result2 = {};
             for (const i in serieses) {
                 const e = serieses[i];
@@ -349,7 +349,7 @@ app.delete("/book", async (req, res) => {
     const idQueriesArray = req.body.book;
     const result = idQueriesArray.map(async idQueries => {
         try {
-            const books = await db.searchBook({ id: idQueries });
+            const books = await db.searchBook(idQueries);
             let result2 = {};
             for (const i in books) {
                 const e = books[i];
