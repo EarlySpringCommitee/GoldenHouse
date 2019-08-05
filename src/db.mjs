@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 const dbPromise = sqlite.open(fileURLToPath(`${import.meta.url}/../../db.db3`), { Promise });
 
 function isInt(str) {
+    str = str.toString();
     var n = Math.floor(Number(str));
     return n !== Infinity && String(n) === str && n >= 0;
 }
