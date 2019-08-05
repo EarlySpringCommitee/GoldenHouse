@@ -440,8 +440,8 @@ async function editStatus(id, status) {
 
 async function getStatus(id) {
     const db = await dbPromise;
-    const query = SQL`SELECT status FROM convert_status WHERE id = ${id}`;
-    return await db.all(query)[0];
+    const query = SQL`SELECT * FROM convert_status WHERE id = ${id}`;
+    return await db.get(query);
 }
 
 export default {

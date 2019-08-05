@@ -339,7 +339,7 @@ app.delete("/book", async (req, res) => {
 
 app.get("/convertStatus", async (req, res) => {
     const id = req.query.id;
-    return res.json(JSON.parse((await db.getStatus(id)).status));
+    return res.json(await db.getStatus(id));
 });
 
 export default {
