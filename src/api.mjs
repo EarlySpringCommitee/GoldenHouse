@@ -114,6 +114,14 @@ app.post("/book", upload.array("files"), async (req, res) => {
             switch (f.mimetype) {
                 case "application/epub+zip":
                     // Convert to MOBI
+                    db.editStatus(
+                        statusId,
+                        JSON.stringify({
+                            success: false,
+                            status: `Converting to MOBI...`,
+                            progress: `${i + 1}/${files.length}`
+                        })
+                    );
                     const mobiTmpPath = await convert(f.path, `${f.path}.mobi`);
                     if (config.debug) console.log(`mobiTmpPath: ${mobiTmpPath}`);
                     db.editStatus(
@@ -166,13 +174,13 @@ app.post("/book", upload.array("files"), async (req, res) => {
                             await file.addImage(buffer, extName, seriesName, "epub"),
                             await file.addImage(buffer, extName, seriesName, "mobi")
                         ];
-                        if (config.debug) console.log(`Cover IDs: `, cover_id);
+                        if (config.debug) console.log(`Cover IDs: `, cover_ids);
                         db.editStatus(
                             statusId,
                             JSON.stringify({
                                 success: false,
-                                status: `Cover IDs: ${Boolean(cover_id)}`,
-                                debug: config.debug ? cover_id : undefined,
+                                status: `Cover IDs: ${Boolean(cover_ids)}`,
+                                debug: config.debug ? cover_ids : undefined,
                                 progress: `${i + 1}/${files.length}`
                             })
                         );
