@@ -9,10 +9,10 @@ import config from "../config.json";
 const rootDir = fileURLToPath(`${import.meta.url}/../../`);
 const tmpDir = mkdtempSync("bookEX-");
 
-async function addEpub(path, seriesId, no) {
-    const newPath = `${rootDir}${config.storage.epub}/${seriesId}/${no}.epub`;
+async function addEpub(path, folderName, no) {
+    const newPath = `${rootDir}${config.storage.epub}/${folderName}/${no}.epub`;
     try {
-        await fs.mkdir(`${rootDir}${config.storage.epub}/${seriesId}/`, config.folderMask);
+        await fs.mkdir(`${rootDir}${config.storage.epub}/${folderName}/`, config.folderMask);
     } catch (e) {
         if (e.code != "EEXIST") throw e;
     }
@@ -20,10 +20,10 @@ async function addEpub(path, seriesId, no) {
     return newPath;
 }
 
-async function addMobi(path, seriesId, no) {
-    const newPath = `${rootDir}${config.storage.epub}/${seriesId}/${no}.mobi`;
+async function addMobi(path, folderName, no) {
+    const newPath = `${rootDir}${config.storage.epub}/${folderName}/${no}.mobi`;
     try {
-        await fs.mkdir(`${rootDir}${config.storage.epub}/${seriesId}/`, config.folderMask);
+        await fs.mkdir(`${rootDir}${config.storage.epub}/${folderName}/`, config.folderMask);
     } catch (e) {
         if (e.code != "EEXIST") throw e;
     }
@@ -75,18 +75,18 @@ async function deleteSeries(seriesId) {
     return true;
 }
 
-async function addImage(buffer, extname, seriesId, type) {
+async function addImage(buffer, extname, folderName, type) {
     const id = uuid();
     const filename = `${id}${extname}`;
-    await fs.mkdir(`${rootDir}${config.storage.image}/${type}/${seriesId}/`, { recursive: true });
-    const path = `${rootDir}${config.storage.image}/${type}/${seriesId}/${filename}`;
+    await fs.mkdir(`${rootDir}${config.storage.image}/${type}/${folderName}/`, { recursive: true });
+    const path = `${rootDir}${config.storage.image}/${type}/${folderName}/${filename}`;
     try {
         await fs.access(path, fsc.F_OK);
-        return await addImage(buffer, extname);
+        return await addImage(buffer, extname, folderName, type);
     } catch (e) {
         // File Does not exist.
-        await fs.writeFile(buffer, extname, seriesId, type);
-        return `${type}/${seriesId}/${filename}`;
+        await fs.writeFile(path, buffer);
+        return `${type}/${folderName}/${filename}`;
     }
 }
 

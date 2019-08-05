@@ -108,7 +108,8 @@ app.post("/book", upload.array("files"), async (req, res) => {
         const data = clone(datas[i]);
         data.upload_time = uploadTime;
         f.path = await file.moveTempEpubFile(rootDir + f.path);
-        const seriesId = data.series_id;
+        const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
+
         try {
             switch (f.mimetype) {
                 case "application/epub+zip":
@@ -162,8 +163,8 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         const extName = path.extname(cover.href);
                         const [buffer, coverMime] = await epub.getImageAsync(meta.cover);
                         const cover_ids = [
-                            await file.addImage(buffer, extName, seriesId, "epub"),
-                            await file.addImage(buffer, extName, seriesId, "mobi")
+                            await file.addImage(buffer, extName, seriesName, "epub"),
+                            await file.addImage(buffer, extName, seriesName, "mobi")
                         ];
                         if (config.debug) console.log(`Cover IDs: `, cover_id);
                         db.editStatus(
@@ -179,7 +180,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         mobiData["cover_id"] = cover_ids[1];
                     }
 
-                    data.filepath = await file.addEpub(f.path, seriesId, data.no);
+                    data.filepath = await file.addEpub(f.path, seriesName, data.no);
                     data.filetype = "epub";
                     if (config.debug) console.log(`EPUB File data: `, data);
                     db.editStatus(
@@ -192,7 +193,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                         })
                     );
 
-                    mobiData.filepath = await file.addMobi(mobiTmpPath, seriesId, data.no);
+                    mobiData.filepath = await file.addMobi(mobiTmpPath, seriesName, data.no);
                     mobiData.filetype = "mobi";
                     if (config.debug) console.log(`MOBI File data: `, mobiData);
                     db.editStatus(
@@ -221,7 +222,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
                 case "application/vnd.amazon.ebook":
                 case "application/x-mobipocket-ebook":
                     // Read mobi metadata
-                    data.filepath = await file.addEpub(mobiTmpPath, seriesId, data.no);
+                    data.filepath = await file.addEpub(mobiTmpPath, seriesName, data.no);
                     data.filetype = "mobi";
                     db.editStatus(
                         statusId,
