@@ -126,7 +126,7 @@ app.post("/book", upload.array("files"), async (req, res) => {
         const data = clone(datas[i]);
         data.upload_time = uploadTime;
         f.path = await file.moveTempEpubFile(rootDir + f.path);
-        const seriesName = (await db.searchSeries({ id: data.series_id }))[0].title;
+        const seriesName = (await db.searchSeries({ id: [data.series_id] }))[0].title;
 
         try {
             switch (f.mimetype) {
