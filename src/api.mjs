@@ -30,7 +30,7 @@ const clone = oldObject => JSON.parse(JSON.stringify(oldObject));
 const whitelist = ["http://localhost:3000", "http://172.25.24.2:3000"];
 const corsOptions = {
     origin: function(origin, callback) {
-        if (whitelist.indexOf(origin) !== -1 || (!origin && config.debug)) {
+        if (whitelist.indexOf(origin) !== -1 || config.debug) {
             callback(null, true);
         } else {
             callback(new Error("Not allowed by CORS"));
