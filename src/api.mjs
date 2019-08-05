@@ -325,7 +325,7 @@ app.delete("/series", async (req, res) => {
             const serieses = await db.searchSeries({ id: idQueries });
             let result2 = {};
             for (const i in serieses) {
-                const e = books[i];
+                const e = serieses[i];
                 const id = e.id;
                 const seriesName = e.title;
                 result2[id] =
