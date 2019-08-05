@@ -428,7 +428,7 @@ async function editSeries(id, data) {
 
 async function addStatus() {
     const db = await dbPromise;
-    const result = await db.run(SQL`INSERT INTO convert_status VALUES DEFAULT VALUES`);
+    const result = await db.run(SQL`INSERT INTO convert_status DEFAULT VALUES`);
     return result.lastID;
 }
 
