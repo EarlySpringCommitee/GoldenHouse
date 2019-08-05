@@ -359,19 +359,16 @@ async function editBook(id, data) {
         const db = await dbPromise;
         const query = SQL`UPDATE book SET `;
         let queried = false;
-        for (const key of ["series_id", "title", "no", "filepath", "upload_time", "desc", "cover_id", "filetype"]) {
+        for (const key of ["series_id", "title", "no", "filepath", "desc", "cover_id", "filetype"]) {
             if (data[key]) {
                 const e = data[key];
-                if (["series_id", "no", "upload_time"].includes(key)) {
-                    if (isInt(e)) continue;
+                if (["series_id", "no"].includes(key)) {
+                    if (!isInt(e)) continue;
                 } else if (typeof e != "string") {
                     continue;
-                } else {
-                    queried
-                        ? query.append(`, ${key}`).append(SQL` = ${e}`)
-                        : query.append(`${key}`).append(SQL` = ${e}`);
-                    queried = true;
                 }
+                queried ? query.append(`, ${key}`).append(SQL` = ${e}`) : query.append(`${key}`).append(SQL` = ${e}`);
+                queried = true;
             }
         }
         if (!queried) throw new Error("No queries.");
@@ -412,12 +409,9 @@ async function editSeries(id, data) {
                 const e = data[key];
                 if (typeof e != "string") {
                     continue;
-                } else {
-                    queried
-                        ? query.append(`, ${key}`).append(SQL` = ${e}`)
-                        : query.append(`${key}`).append(SQL` = ${e}`);
-                    queried = true;
                 }
+                queried ? query.append(`, ${key}`).append(SQL` = ${e}`) : query.append(`${key}`).append(SQL` = ${e}`);
+                queried = true;
             }
         }
         if (!queried) throw new Error("No queries.");
